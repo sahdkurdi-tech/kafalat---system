@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ئەرشیف</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    
+    <link rel="stylesheet" href="css/archive.css">
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2><i class="fas fa-archive"></i> ئەرشیف</h2>
+        <div id="dynamic-archive-list">
+            <p class="text-center text-muted mt-3"><i class="fas fa-spinner fa-spin"></i> باردەکرێت...</p>
+        </div>
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-right"></i> گەڕانەوە</a>
+    </div>
+
+    <div class="main-content">
+        
+        <div id="page-title-container" class="mb-4 pb-2 border-bottom">
+            <h2 id="page-title" class="text-dark fw-bold">هەڵبژاردنی ئەرشیف</h2>
+        </div>
+
+        <div id="months-view" class="months-grid"></div>
+
+        <div id="details-view">
+            <div class="header-bar">
+                <h3 id="archive-header-title" class="m-0 fw-bold text-primary">وردەکاری</h3>
+                <div class="action-btns d-flex gap-2">
+                    <button class="btn btn-dark" onclick="preparePrint()"><i class="fas fa-print"></i> پرینت</button>
+                    <button class="btn btn-secondary" onclick="closeDetails()"><i class="fas fa-times"></i> داخستن</button>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle" id="archive-table">
+                    <thead id="table-head"></thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="printable-area">
+        <h1 id="print-simple-title"></h1>
+        <div id="print-table-container"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="js/archive.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>چوونەژوورەوە</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body { 
+            font-family: 'Noto Sans Arabic', sans-serif;
+            background: radial-gradient(circle at top, #02a592 0%, #03595f 100%);
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* --- ئەنیمەیشنی سوڕانەوە --- */
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes rotate-reverse {
+            0% { transform: rotate(360deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* --- کارتەکە --- */
+        .login-card { 
+            background: rgba(15, 185, 204, 0.7); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px 30px; 
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6); 
+            width: 90%; 
+            max-width: 380px; 
+            text-align: center;
+            position: relative;
+            color: white;
+            z-index: 1;
+        }
+
+        /* --- چوارچێوەی ڕوناکی جوڵاو --- */
+        .card-border-glow {
+            position: absolute;
+            inset: -3px;
+            border-radius: 26px;
+            background: transparent;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .card-border-glow::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(transparent, transparent, transparent, #ffffff, transparent);
+            animation: rotate 4s linear infinite;
+        }
+
+        .card-bg-fix {
+            position: absolute;
+            inset: 1px;
+            background: rgba(16, 26, 45, 0.85);
+            border-radius: 24px;
+            z-index: -1;
+        }
+
+        /* --- لۆگۆ --- */
+        .logo-container {
+            width: 110px;
+            height: 110px;
+            margin: -95px auto 20px; 
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            padding: 4px;
+            background: conic-gradient(from 0deg, transparent, transparent, #ffffff, transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: rotate-reverse 3s linear infinite;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .app-logo {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.1);
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 2;
+        }
+
+        .title-text {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .subtitle-text {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        /* --- خانەکانی نووسین --- */
+        .input-group {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            padding: 5px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .input-group:focus-within {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.8);
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .input-group-text {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2rem;
+            padding-right: 15px;
+        }
+        
+        .input-group:focus-within .input-group-text {
+            color: #ffffff;
+        }
+
+        .form-control {
+            background: transparent;
+            border: none;
+            color: white;
+            font-family: 'Noto Sans Arabic', sans-serif;
+            font-size: 1rem;
+            padding: 12px;
+            height: auto;
+        }
+
+        .form-control:focus {
+            background: transparent;
+            box-shadow: none;
+            color: white;
+        }
+
+        ::placeholder { 
+            color: rgba(255, 255, 255, 0.3) !important;
+        }
+
+        /* --- دوگمەکان --- */
+        .btn-primary { 
+            background: white;
+            color: #141e30;
+            border: none; 
+            border-radius: 15px;
+            font-weight: 900;
+            font-size: 1.1rem;
+            padding: 15px;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn-primary:hover::after {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+        }
+
+        /* --- ستایلی دوگمەی دابەزاندن --- */
+        .btn-install {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 12px;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            display: none; /* لەڕێگەی سکریپتەوە کۆنترۆڵ دەکرێت */
+        }
+        
+        .btn-install:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            color: white;
+            border-color: white;
+        }
+
+        /* --- Mobile Responsive --- */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 35px 20px;
+                margin-top: 40px;
+                width: 85%;
+            }
+            .title-text {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#141e30">
+    <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="card-border-glow"></div>
+        <div class="card-bg-fix"></div>
+
+        <div class="logo-container">
+            <div class="logo-ring"></div>
+            <img src="icon-512.png" alt="Logo" class="app-logo" onerror="this.src='https://via.placeholder.com/100?text=Logo'">
+        </div>
+        
+        <h3 class="title-text">بەخێربێیتەوە</h3>
+        <p class="subtitle-text">چوونەژوورەوە بۆ سیستەمی هاوکاری</p>
+
+        <form id="loginForm">
+            
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <input type="email" id="email" class="form-control" placeholder="ئیمەیڵ" required>
+            </div>
+
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                <input type="password" id="password" class="form-control" placeholder="وشەی نهێنی" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">چوونە ژوورەوە</button>
+
+            <button type="button" id="installBtn" class="btn btn-install">
+                <i class="fas fa-download me-2"></i> دابەزاندنی ئەپڵیکەیشنەکە
+            </button>
+            
+            <div id="errorMsg" class="text-warning mt-3 small fw-bold"></div>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCblBgirNBStpbb1TrVNzKJnJ4-FpuVvyE",
+  authDomain: "monthly-aid-system-2ec16.firebaseapp.com",
+  projectId: "monthly-aid-system-2ec16",
+  storageBucket: "monthly-aid-system-2ec16.firebasestorage.app",
+  messagingSenderId: "14226596485",
+  appId: "1:14226596485:web:33d95fa09fc9b91c2d3fec"
+};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if(user) {
+                window.location.href = "index.html";
+            }
+        });
+
+        const loginForm = document.getElementById("loginForm");
+        
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const btn = e.target.querySelector('button[type="submit"]');
+            const errorDiv = document.getElementById("errorMsg");
+            const originalText = btn.innerText;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> ...';
+            errorDiv.innerText = "";
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = "index.html";
+            } catch (error) {
+                console.error("Login Error:", error);
+                let msg = "هەڵەیەک ڕوویدا!";
+                if(error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    msg = "ئیمەیڵ یان وشەی نهێنی هەڵەیە!";
+                } else if (error.code === 'auth/too-many-requests') {
+                    msg = "تکایە کەمێک بووەستە پاشان هەوڵ بدەرەوە.";
+                } else if (error.code === 'auth/invalid-email') {
+                    msg = "شێوازی ئیمەیڵەکە هەڵەیە.";
+                }
+                errorDiv.innerText = msg;
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        });
+    </script>
+
+    <script>
+        // 1. کارپێکردنی Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
+            });
+        }
+
+        const installBtn = document.getElementById('installBtn');
+        let deferredPrompt;
+        
+        // 2. پشکنین: ئایا ئامێرەکە ئایفۆنە؟
+        const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        // ئایا بەرنامەکە پێشتر دابەزیوە (Standalone Mode)؟
+        const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
+        const isAlreadyInstalled = window.matchMedia('(display-mode: standalone)').matches || isInStandaloneMode;
+
+        // ئەگەر بەرنامەکە دابەزیبێت، دوگمەکە هەرگیز پیشان مەدە
+        if (isAlreadyInstalled) {
+            if(installBtn) installBtn.style.display = 'none';
+        } else {
+            // --- حاڵەتی ئەندرۆید و کۆمپیوتەر (Chrome/Edge) ---
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                if(installBtn) installBtn.style.display = 'block';
+            });
+
+            // --- حاڵەتی ئایفۆن (iOS) ---
+            // لەبەر ئەوەی iOS ڕووداوی beforeinstallprompt نێرێت، دەبێت بە مەرج دوگمەکە پیشان بدەین
+            if (isIos && installBtn) {
+                installBtn.style.display = 'block';
+            }
+        }
+
+        // 3. کرداری کلیک کردن لەسەر دوگمەکە
+        if(installBtn) {
+            installBtn.addEventListener('click', async () => {
+                // ئەگەر Prompt هەبوو (واتە ئەندرۆید یان PC)
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`User response: ${outcome}`);
+                    deferredPrompt = null;
+                    installBtn.style.display = 'none';
+                } 
+                // ئەگەر ئایفۆن بوو (فێرکاری پیشان دەدەین)
+                else if (isIos) {
+                    Swal.fire({
+                        title: 'دابەزاندن بۆ ئایفۆن',
+                        html: `
+                            <div class="text-end" style="font-size: 0.9rem; line-height: 1.8;">
+                                بەهۆی سیاسەتی ئەپڵ، دەبێت بە دەست دایبەزێنیت:
+                                <br><br>
+                                ١. لە خوارەوەی سەفاری کلیک لە ئایکۆنی <strong>Share</strong> بکە (<i class="fas fa-share-square"></i>).
+                                <br>
+                                ٢. بۆ خوارەوە بڕۆ و کلیک لە <strong>Add to Home Screen</strong> بکە (<i class="fas fa-plus-square"></i>).
+                                <br>
+                                ٣. لە سەرەوە دوگمەی <strong>Add</strong> دابگرە.
+                            </div>
+                        `,
+                        icon: 'info',
+                        confirmButtonText: 'باشە تێگەیشتم',
+                        confirmButtonColor: '#007aff'
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "سیستەمی مانگانە",
+  "short_name": "Aid System",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f8f9fc",
+  "theme_color": "#4e73df",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
