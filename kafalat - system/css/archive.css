@@ -1,0 +1,254 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap');
+
+body { 
+    font-family: 'Noto Naskh Arabic', sans-serif; 
+    background: #f8f9fc; 
+    margin: 0; 
+    display: flex;
+    height: 100vh; 
+    overflow: hidden; 
+}
+
+/* Sidebar Styling */
+.sidebar { 
+    width: 260px; 
+    background: #1e272e; 
+    color: white;
+    padding: 20px; 
+    display: flex; 
+    flex-direction: column; 
+    overflow-y: auto; 
+    z-index: 100; 
+    flex-shrink: 0; /* ڕێگری دەکات لە بچووکبوونەوە */
+}
+.sidebar h2 { 
+    text-align: center;
+    margin-bottom: 30px; 
+    border-bottom: 2px solid #34495e; 
+    padding-bottom: 15px; 
+    font-weight: bold; 
+}
+.nav-btn { 
+    background: none; 
+    border: none;
+    color: #bdc3c7; 
+    padding: 12px 20px; 
+    text-align: right; 
+    cursor: pointer; 
+    font-size: 1rem; 
+    width: 100%; 
+    border-radius: 5px; 
+    margin-bottom: 5px; 
+    transition: 0.2s;
+    display: block; 
+    text-decoration: none; 
+}
+.nav-btn:hover, .nav-btn.active { 
+    background: #4e73df; 
+    color: #fff; 
+    padding-right: 25px;
+}
+.nav-btn i { 
+    margin-left: 10px; 
+    width: 20px; 
+    text-align: center;
+}
+.back-btn { 
+    margin-top: auto; 
+    background: #c0392b; 
+    color: white; 
+    text-align: center; 
+    text-decoration: none; 
+    padding: 12px; 
+    border-radius: 8px;
+    font-weight: bold; 
+}
+
+/* Main Content */
+.main-content { 
+    flex: 1; 
+    padding: 30px; 
+    overflow-y: auto; 
+    position: relative;
+    width: 100%; 
+}
+
+/* Grid & Cards */
+.months-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+    gap: 20px;
+}
+.month-card { 
+    background: white; 
+    padding: 25px; 
+    border-radius: 10px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); 
+    cursor: pointer; 
+    text-align: center; 
+    border-left: 5px solid #4e73df; 
+    transition: 0.3s;
+}
+.month-card:hover { 
+    transform: translateY(-5px); 
+    border-left-color: #2e59d9;
+}
+
+/* Table View */
+#details-view { 
+    display: none; 
+    background: white; 
+    padding: 25px; 
+    border-radius: 10px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); 
+}
+.header-bar { 
+    display: flex; 
+    justify-content: space-between;
+    align-items: center; 
+    border-bottom: 2px solid #e3e6f0; 
+    padding-bottom: 15px; 
+    margin-bottom: 20px;
+}
+
+/* =========================================
+   MOBILE RESPONSIVENESS (NEW)
+   ========================================= */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column; /* لە مۆبایلدا دەبنە سەر و خوار */
+        height: auto;
+        overflow-y: auto;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 15px;
+        position: relative;
+        overflow-y: visible;
+        flex-direction: row; /* دوگمەکان دەبنە تەنیشت یەک */
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .sidebar h2 {
+        width: 100%;
+        margin-bottom: 10px;
+        border-bottom: none;
+        font-size: 1.2rem;
+    }
+
+    #dynamic-archive-list {
+        display: flex;
+        overflow-x: auto; /* سکڕۆڵی ئاسۆیی بۆ دوگمەکان */
+        white-space: nowrap;
+        gap: 10px;
+        width: 100%;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+    }
+
+    .nav-btn {
+        width: auto;
+        padding: 8px 15px;
+        margin-bottom: 0;
+        border: 1px solid #34495e;
+        flex-shrink: 0;
+    }
+    
+    .nav-btn:hover, .nav-btn.active {
+        padding-right: 15px; /* لادانی جوڵەی زیادە لە مۆبایل */
+    }
+
+    .back-btn {
+        width: 100%;
+        margin-top: 10px;
+        padding: 8px;
+    }
+
+    .main-content {
+        padding: 15px;
+        height: auto;
+    }
+
+    .months-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* کارتی بچووکتر بۆ مۆبایل */
+        gap: 15px;
+    }
+    
+    .header-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .action-btns {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+    }
+}
+
+/* --- PRINT AREA (Hidden on Screen) --- */
+#printable-area { display: none; }
+
+/* --- PRINT STYLING --- */
+@media print {
+    @page { 
+        size: A4;
+        margin: 10mm; 
+    }
+    
+    body * { visibility: hidden; }
+
+    body {
+        background: white;
+        height: auto;
+        overflow: visible;
+    }
+
+    #printable-area, #printable-area * { visibility: visible; }
+
+    #printable-area {
+        display: block !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding-top: 30px; 
+    }
+
+    #print-simple-title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        border-bottom: 2px solid #000;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+        color: black !important;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        direction: rtl;
+        font-size: 12px; 
+    }
+
+    th, td {
+        border: 1px solid #000 !important;
+        padding: 5px !important;
+        text-align: center !important;
+        color: black !important;
+    }
+
+    thead th {
+        background-color: var(--print-color, #ccc) !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
