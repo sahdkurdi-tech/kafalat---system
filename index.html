@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستەمی بەڕێوەبردنی کەفالەت</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#517da2">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <style id="custom-design-styles">
+        /* پاراستنی UI بۆ ستاف */
+        body:not(.is-admin) .admin-only {
+            display: none !important;
+        }
+
+        /* =========================================
+           دیزاینی دەسکتاپ
+           ========================================= */
+        #sidebar {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1) !important;
+            border-left: 1px solid #e0e0e0;
+            display: flex !important;
+            flex-direction: column !important; 
+        }
+        .sidebar-brand {
+            background-color: #517da2 !important;
+            color: #ffffff !important;
+            padding: 30px 20px 20px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            border-bottom: none !important;
+        }
+        .sidebar-brand-icon {
+            width: 85px; height: 85px; 
+            background-color: #ffffff;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            overflow: hidden; 
+            border: 3px solid #ffffff;
+        }
+        .sidebar-brand-icon img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        #sidebar .nav-link {
+            color: #000000 !important; font-weight: 500 !important;
+            padding: 14px 20px !important; display: flex !important; align-items: center !important;
+            gap: 22px !important; border-radius: 0 !important; transition: background 0.2s !important;
+        }
+        #sidebar .nav-link i {
+            font-size: 1.3rem !important; color: #707579; width: 26px !important; text-align: center !important;
+        }
+        #sidebar .nav-link:hover, #sidebar .nav-link.active { background-color: #f4f4f5 !important; }
+        #sidebar .nav-link.active i { color: #517da2 !important; }
+        #sidebar .nav-link.text-danger, #sidebar .nav-link.text-danger i { color: #e53935 !important; }
+
+        /* =========================================
+           دیزاینی مۆبایل
+           ========================================= */
+        @keyframes spinLight {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (min-width: 992px) {
+            .modern-navbar { display: none !important; }
+        }
+
+        @media (max-width: 991px) {
+            #sidebar { display: none !important; } 
+            #mobileMenuBtn, #sidebarOverlay { display: none !important; }
+            
+            .main-content {
+                padding-top: 110px !important; 
+                margin-right: 0 !important;
+            }
+            .action-bar-container { margin-top: 10px; }
+
+            .modern-navbar {
+                background: transparent !important; border: none !important; box-shadow: none !important;
+                padding: 2px; border-radius: 52px; position: fixed; top: 15px; left: 0; right: 0;
+                margin-left: auto; margin-right: auto; z-index: 1050; overflow: hidden; transition: border-radius 0.3s ease;
+            }
+
+            .modern-navbar::before {
+                content: ""; position: absolute; width: 200%; height: 1500px; top: 50%; left: 50%;
+                margin-left: -100%; margin-top: -750px;
+                background: conic-gradient( transparent 0%, transparent 40%, #517da2 50%, transparent 60%, transparent 90%, #517da2 100% );
+                animation: spinLight 3s linear infinite; z-index: -1;
+            }
+
+            .navbar-inner-bg {
+                background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+                border-radius: 50px; width: 100%; display: flex; flex-wrap: wrap; align-items: center;
+                justify-content: space-between; padding: 8px 18px; transition: border-radius 0.3s ease;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+
+            .modern-navbar.menu-open { border-radius: 22px; }
+            .modern-navbar.menu-open .navbar-inner-bg { border-radius: 20px; }
+
+            #navbarNav {
+                background: transparent; border-radius: 0; padding: 0; box-shadow: none; position: static; margin-top: 10px; width: 100%;
+                max-height: 70vh; overflow-y: auto;
+            }
+
+            #navbarNav .navbar-nav { width: 100%; padding: 0 5px; }
+            #navbarNav .nav-item { width: 100%; margin-bottom: 8px; }
+            
+            #navbarNav .nav-link {
+                width: 100%; text-align: center; padding: 12px 15px; background-color: #f8fafc; 
+                border-radius: 12px; display: flex; align-items: center; justify-content: center;
+                transition: all 0.3s ease; border: 1px solid transparent; color: #333 !important;
+            }
+            #navbarNav .nav-link i { margin-left: 10px; font-size: 1.2rem; color: #517da2; }
+            #navbarNav .nav-link:hover { background-color: #f1f5f9; }
+            #navbarNav .nav-link.active { background-color: rgba(81, 125, 162, 0.1); border-color: rgba(81, 125, 162, 0.2); color: #517da2 !important;}
+            #navbarNav .nav-link.text-danger i { color: #dc3545; }
+        }
+    </style>
+</head>
+<body>
+    <div id="connection-status"></div>
+
+    <div id="loading-screen">
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+        <h5 class="mt-3 text-muted">...تکایە چاوەڕوان بە</h5>
+    </div>
+
+    <div id="app-container" style="display: none;">
+        
+        <nav class="navbar modern-navbar mx-auto d-lg-none" style="max-width: 92%;">
+            <div class="navbar-inner-bg">
+                <a class="navbar-brand d-flex align-items-center m-0 text-dark fw-bold gap-3" href="index.html" style="font-size: 1.25rem; letter-spacing: 1.5px;">
+                    <img src="icon-512.png" alt="لۆگۆ" width="48" height="48" class="rounded-circle object-fit-cover border shadow-sm"> MROVDOSTAN
+                </a>
+                <button class="navbar-toggler border-0 shadow-none p-0" type="button" id="mobileMenuToggler">
+                    <i class="fa-solid fa-bars-staggered fa-lg" style="color: #517da2;"></i>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav align-items-center w-100 pt-3">
+                        <li class="nav-item border-top pt-2 mt-1 w-100">
+                            <a class="nav-link fw-bold active" onclick="navTo('dashboard'); closeMobileMenu()" style="cursor: pointer;">
+                                <i class="fa-solid fa-house"></i> سەرەکی
+                            </a>
+                        </li>
+                        <li class="nav-item w-100">
+                            <a class="nav-link fw-bold" href="search.html">
+                                <i class="fas fa-search"></i> گەڕانی گشتی
+                            </a>
+                        </li>
+                        
+                        <div id="dynamicListNavMobile" class="w-100"></div>
+
+                        <li class="nav-item w-100 border-top pt-2 mt-1">
+                            <a class="nav-link fw-bold" onclick="navTo('suspended-view'); window.loadSuspendedData(); closeMobileMenu()" style="cursor: pointer;">
+                                <i class="fas fa-ban text-warning"></i> ڕاگیراوەکان
+                            </a>
+                        </li>
+                        <li class="nav-item w-100">
+                            <a class="nav-link fw-bold" onclick="navTo('temporary-view'); window.loadTemporaryData(); closeMobileMenu()" style="cursor: pointer;">
+                                <i class="fas fa-clock text-info"></i> لیستی کاتی
+                            </a>
+                        </li>
+                        <li class="nav-item w-100">
+                            <a class="nav-link fw-bold" onclick="navTo('recycle-view'); window.loadRecycleBinData(); closeMobileMenu()" style="cursor: pointer;">
+                                <i class="fas fa-trash text-secondary"></i> سەڵەی سڕاوەکان
+                            </a>
+                        </li>
+                        <li class="nav-item w-100">
+                            <a class="nav-link fw-bold" href="archive.html">
+                                <i class="fas fa-archive text-muted"></i> سیستەمی ئەرشیف
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item border-top pt-2 mt-1 w-100 admin-only" id="nav-settings-link-mobile">
+                            <a class="nav-link fw-bold" onclick="navTo('settings'); closeMobileMenu()" style="cursor: pointer;">
+                                <i class="fa-solid fa-cogs text-dark"></i> سێتینگ (Admin)
+                            </a>
+                        </li>
+                        <li class="nav-item w-100 pb-2">
+                            <a class="nav-link fw-bold text-danger" onclick="window.logoutSystem()" style="cursor: pointer;">
+                                <i class="fa-solid fa-sign-out-alt"></i> دەرچوون
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="sidebar d-none d-lg-flex" id="sidebar">
+            <div class="sidebar-brand flex-shrink-0">
+                <div class="sidebar-brand-icon">
+                    <img src="icon-512.png" alt="MROVDOSTAN">
+                </div>
+                <div class="mt-3 text-center w-100">
+                    <div class="fw-bold" style="font-size: 1.2rem; letter-spacing: 1.5px;">MROVDOSTAN</div>
+                </div>
+            </div>
+
+            <div class="flex-grow-1 overflow-auto">
+                <nav class="nav flex-column w-100">
+                    <a class="nav-link active" onclick="navTo('dashboard')" style="cursor: pointer;"><i class="fas fa-th-large"></i> سەرەکی</a>
+                    <a class="nav-link" href="search.html"><i class="fas fa-search"></i> گەڕانی گشتی</a>
+                    
+                    <div id="dynamicListNav"></div>
+                    
+                    <a class="nav-link" onclick="navTo('suspended-view'); window.loadSuspendedData()" style="cursor: pointer;"><i class="fas fa-ban"></i> ڕاگیراوەکان</a>
+                    <a class="nav-link" onclick="navTo('temporary-view'); window.loadTemporaryData()" style="cursor: pointer;"><i class="fas fa-clock"></i> لیستی کاتی</a>
+                    <a class="nav-link" onclick="navTo('recycle-view'); window.loadRecycleBinData()" style="cursor: pointer;"><i class="fas fa-trash"></i> سەڵەی سڕاوەکان</a>
+                    <a id="nav-archive-link" class="nav-link" href="archive.html"><i class="fas fa-archive"></i> سیستەمی ئەرشیف</a>
+                </nav>
+            </div>
+
+            <div class="flex-shrink-0 border-top mt-auto">
+                <nav class="nav flex-column w-100 pb-3 pt-1">
+                    <a class="nav-link admin-only" id="nav-settings-link" onclick="navTo('settings')" style="cursor: pointer;"><i class="fas fa-cogs"></i> سێتینگ (Admin)</a>
+                    <a class="nav-link text-danger fw-bold" onclick="window.logoutSystem()" style="cursor: pointer;"><i class="fas fa-sign-out-alt"></i> دەرچوون</a>
+                </nav>
+            </div>
+        </div>
+
+        <div class="main-content">
+            
+            <div id="dashboard" class="view-section active">
+                <div class="card-box bg-primary text-white mb-4 text-center shadow-sm" style="background-color: #517da2 !important;">
+                    <h5>کۆی گشتی پارەی هەموو بەشەکان</h5>
+                    <h1 dir="ltr" class="display-4 fw-bold"><span id="grandTotalDisplay">0</span> IQD</h1>
+                </div>
+                <div id="dashboardCards" class="row g-3"></div>
+            </div>
+
+            <div id="list-view" class="view-section">
+                <h3 id="activeListTitle" class="mb-4 fw-bold">ناونیشانی لیست</h3>
+
+                <div class="action-bar-container card shadow-sm mb-4 border-0">
+                    <div class="card-body p-3">
+                        <div class="row g-3 align-items-center justify-content-between">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 text-muted">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                    <input type="text" id="listSearch" class="form-control border-start-0 ps-0" 
+                                           placeholder="گەڕان بەدوای ناو..." onkeyup="filterTable()">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-8 text-md-end d-flex gap-2 justify-content-md-end flex-wrap">
+                                <button id="btn-add-new" class="btn btn-primary d-flex align-items-center gap-2 px-3 admin-only" onclick="openEntryModal()" style="background-color: #517da2; border-color: #517da2;">
+                                    <i class="fas fa-plus"></i>
+                                    <span>زیادکردن</span>
+                                </button>
+                                <button class="btn btn-success d-flex align-items-center gap-2 px-3" onclick="import('./js/beneficiary-service.js').then(m => m.openBulkWhatsAppSender())">
+                                    <i class="fab fa-whatsapp"></i>
+                                    <span>ناردنی بەکۆمەڵ</span>
+                                </button>
+
+                                <button class="btn btn-success" onclick="exportExcel()">
+                                    <i class="fas fa-file-download"></i> دابەزاندنی ئێکسڵ
+                                </button>
+                                
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle d-flex align-items-center gap-2 px-3" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-print"></i>
+                                        <span>چاپکردن</span>
+                                    </button>
+                                    <ul class="dropdown-menu text-end">
+                                        <li><a id="btn-print-list" class="dropdown-item" href="#" onclick="printData('list')"><i class="fas fa-list me-2"></i> لیستی ئاسایی</a></li>
+                                        <li><a id="btn-print-envelope" class="dropdown-item" href="#" onclick="printData('envelope')"><i class="fas fa-envelope me-2"></i> چاپکردنی زەرف</a></li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-dark dropdown-toggle px-3" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                    <ul class="dropdown-menu text-end">
+                                        <li><a id="btn-excel" class="dropdown-item admin-only" href="#" onclick="importExcel()"><i class="fas fa-file-excel text-success me-2"></i> هێنان لە ئێکسڵەوە</a></li>
+                                        <li><hr class="dropdown-divider admin-only"></li>
+                                        <li><a id="btn-archive" class="dropdown-item admin-only" href="#" onclick="saveCurrentListToArchive()"><i class="fas fa-archive text-warning me-2"></i> ئەرشیفکردنی ئەم مانگە</a></li>
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="resetAllCallStatuses()"><i class="fas fa-undo me-2"></i> سفرکردنەوەی پەیوەندییەکان</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="bulk-actions" class="alert alert-info d-none d-flex justify-content-between align-items-center mb-3 shadow-sm border-0">
+                    <div>
+                        <i class="fas fa-check-square me-2"></i>
+                        <span class="fw-bold">دیاریکراوەکان: <span id="selected-count" class="badge bg-primary fs-6">0</span> کەس</span>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn btn-success btn-sm fw-bold px-3" onclick="window.bulkUpdateAidStatus('received')">
+                            <i class="fas fa-hand-holding-usd"></i> وەرگرت
+                        </button>
+                        <button class="btn btn-danger btn-sm fw-bold px-3" onclick="window.bulkUpdateAidStatus('not_received')">
+                            <i class="fas fa-times-circle"></i> وەرنەگرت
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm fw-bold px-3 bg-white" onclick="window.bulkUpdateAidStatus('clear')">
+                            <i class="fas fa-eraser"></i> لابردنی دۆخ
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-box">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" style="min-width: 600px;">
+                            <thead id="listTableHead" class="table-light"></thead>
+                            <tbody id="listTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="suspended-view" class="view-section">
+                <h3 class="text-danger mb-4">لیستی کەفالەتە ڕاگیراوەکان</h3>
+                <div class="card-box">
+                    <div class="table-responsive">
+                        <table class="table table-striped" style="min-width: 500px;">
+                            <thead>
+                                <tr>
+                                    <th>ناو</th>
+                                    <th>لیست</th>
+                                    <th>هۆکاری ڕاگرتن</th>
+                                    <th>بەرواری ڕاگرتن</th>
+                                    <th>کردار</th>
+                                </tr>
+                            </thead>
+                            <tbody id="suspendedTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="temporary-view" class="view-section">
+                <h3 class="text-info mb-4">لیستی کاتی</h3>
+                <div class="card-box">
+                    <div class="table-responsive">
+                        <table class="table table-striped" style="min-width: 500px;">
+                            <thead>
+                                <tr>
+                                    <th>ناو</th>
+                                    <th>لیست</th>
+                                    <th>بەرواری ناردن</th>
+                                    <th>کردار</th>
+                                </tr>
+                            </thead>
+                            <tbody id="temporaryTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="recycle-view" class="view-section">
+                <h3 class="text-secondary mb-4"><i class="fas fa-trash-alt"></i> سەڵەی سڕاوەکان</h3>
+                <div class="card-box">
+                    <div class="alert alert-warning small">
+                        <i class="fas fa-info-circle"></i> تێبینی: ئەو ناوانەی لێرە "سڕینەوەی یەکجارە" دەکەیت، چیتر ناگەڕێنەوە.
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ناو</th>
+                                    <th>لیستی سەرەکی</th>
+                                    <th>بەرواری سڕینەوە</th>
+                                    <th>کردارەکان</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recycleTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings" class="view-section">
+                <h3 class="mb-4 text-dark border-bottom pb-3"><i class="fas fa-sliders-h text-primary"></i> ڕێکخستنی سیستەم</h3>
+                <div class="settings-container">
+                    <div class="settings-sidebar">
+                        <div class="settings-menu-item active" onclick="switchSettingPanel('panel-control', this)"><i class="fas fa-user-shield"></i> کۆنترۆڵی سیستەم</div>
+                        <div class="settings-menu-item" onclick="switchSettingPanel('panel-lists', this)"><i class="fas fa-list-ul"></i> بەڕێوەبردنی لیستەکان</div>
+                        <div class="settings-menu-item" onclick="switchSettingPanel('panel-fields', this)"><i class="fas fa-tasks"></i> دیزاینی خانەکان</div>
+                        <div class="settings-menu-item" onclick="switchSettingPanel('panel-backup', this)"><i class="fas fa-database"></i> باکەپ و داتا</div>
+                    </div>
+                    <div class="settings-content">
+                        
+                        <div id="panel-control" class="setting-panel active">
+                            <h4 class="mb-4 text-danger border-bottom pb-2">کۆنترۆڵی ستاف (Admin Panel)</h4>
+                            <div class="row g-3 mt-3">
+                                <div class="col-md-6">
+                                    <div class="card p-3 shadow-sm">
+                                        <h6 class="fw-bold"><i class="fas fa-tools"></i> ئامرازەکان</h6>
+                                        <div class="form-check form-switch mt-2"><input class="form-check-input control-switch" type="checkbox" id="ctrl-add-new" checked><label>زیادکردنی ناو</label></div>
+                                        <div class="form-check form-switch mt-2"><input class="form-check-input control-switch" type="checkbox" id="ctrl-excel" checked><label>هێنانی ئەکسڵ</label></div>
+                                        <div class="form-check form-switch mt-2"><input class="form-check-input control-switch" type="checkbox" id="ctrl-print-list" checked><label>پرێنتی لیست</label></div>
+                                        <div class="form-check form-switch mt-2"><input class="form-check-input control-switch" type="checkbox" id="ctrl-print-envelope" checked><label>پرێنتی زەرف</label></div>
+                                        <div class="form-check form-switch mt-2"><input class="form-check-input control-switch" type="checkbox" id="ctrl-archive-btn" checked><label>دوگمەی ئەرشیف</label></div>
+                                        <div class="form-check form-switch mt-2"><input class="form-check-input control-switch" type="checkbox" id="ctrl-archive-nav" checked><label>سیستەمی ئەرشیف</label></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card p-3 shadow-sm border-danger">
+                                        <h6 class="fw-bold text-danger"><i class="fas fa-mouse-pointer"></i> کردارەکانی ناو خشتە</h6>
+                                        <div class="alert alert-light small p-2 mb-2">شاردنەوەی ئەم دوگمانە بۆ بەکارهێنەری ئاسایی</div>
+                                        <div class="form-check form-switch mt-2"><input class="form-check-input control-switch" type="checkbox" id="ctrl-row-edit" checked><label>دوگمەی دەستکاری</label></div>
+                                        <div class="form-check form-switch mt-2"><input class="form-check-input control-switch" type="checkbox" id="ctrl-row-suspend" checked><label>دوگمەی ڕاگرتن</label></div>
+                                        <div class="form-check form-switch mt-2"><input class="form-check-input control-switch" type="checkbox" id="ctrl-row-temp" checked><label>دوگمەی کاتی</label></div>
+                                        <div class="form-check form-switch mt-2"><input class="form-check-input control-switch" type="checkbox" id="ctrl-row-delete" checked><label class="text-danger">دوگمەی سڕینەوە</label></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card p-3 shadow-sm mt-3">
+                                <h6 class="fw-bold border-bottom pb-2 mb-3"><i class="fas fa-layer-group"></i> دیاریکردنی لیستە بینراوەکان</h6>
+                                <div id="control-lists-container" class="row g-2"><p class="text-center text-muted">جارێ لیستەکان بار دەبن...</p></div>
+                            </div>
+                            <button class="btn btn-primary mt-4" onclick="window.saveSystemControls()"><i class="fas fa-save"></i> خەزنکردنی گۆڕانکارییەکان</button>
+                        </div>
+
+                        <div id="panel-lists" class="setting-panel">
+                            <h4 class="mb-3">بەڕێوەبردنی لیستەکان</h4>
+                            <div class="row g-4">
+                                <div class="col-md-5">
+                                    <div class="p-4 bg-light rounded border shadow-sm">
+                                        <form id="createListForm">
+                                            <input type="text" id="newListTitle" class="form-control mb-3" placeholder="ناوی لیست" required>
+                                            <input type="color" id="newListColor" class="form-control form-control-color mb-4" value="#4e73df">
+                                            <button type="submit" class="btn btn-primary w-100">دروستکردن</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="col-md-7"><ul id="settingsListsDisplay" class="list-group list-group-flush"></ul></div>
+                            </div>
+                        </div>
+
+                        <div id="panel-fields" class="setting-panel">
+                            <h4 class="mb-3">دیزاینی خانەکان</h4>
+                            <div class="row g-4">
+                                <div class="col-md-5">
+                                    <form id="createFieldForm">
+                                        <select id="fieldTargetList" class="form-select mb-2" required></select>
+                                        <select id="fieldType" class="form-select mb-2">
+                                            <option value="text">نوسین</option>
+                                            <option value="number">ژمارە</option>
+                                            <option value="date">بەروار</option>
+                                            <option value="select">هەڵبژاردن</option>
+                                            <option value="note">تێبینی</option>
+                                        </select>
+                                        <input type="text" id="fieldLabel" class="form-control mb-2" placeholder="ناوی خانە" required>
+                                        <div id="optionsDiv" class="d-none"><input type="text" id="fieldOptions" class="form-control mb-2" placeholder="هەڵبژاردنەکان"></div>
+                                        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="showInTable" checked><label>لە خشتە</label></div>
+                                        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="showInPrint" checked><label>لە چاپ</label></div>
+                                        <button type="submit" class="btn btn-success w-100 mt-3">زیادکردن</button>
+                                    </form>
+                                </div>
+                                <div class="col-md-7"><div id="fieldsPreviewArea"></div></div>
+                            </div>
+                        </div>
+
+                        <div id="panel-backup" class="setting-panel">
+                            <div class="text-center py-5">
+                                <i class="fas fa-shield-alt fa-5x text-primary mb-4"></i>
+                                <h4>باکەپ</h4>
+                                <div class="d-flex justify-content-center gap-4 mt-4">
+                                    <button class="btn btn-outline-primary" onclick="window.openBackupMenu()">وەرگرتنی باکەپ</button>
+                                    <button class="btn btn-outline-danger" onclick="window.openRestoreMenu()">گەڕاندنەوە</button>
+                                </div>
+                                <input type="file" id="backupFileInput" style="display: none" accept=".json" onchange="window.handleFileSelect(event)">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script type="module" src="js/auth-nav.js"></script>
+    <script type="module" src="js/settings.js"></script>
+    <script type="module" src="js/main-logic.js"></script>
+    <script type="module" src="js/backup.js"></script>
+    <script type="module" src="js/voice-service.js"></script>
+    <script type="module" src="js/print-logic.js"></script>
+
+    <script>
+        window.closeMobileMenu = function() {
+            const navMenu = document.getElementById('navbarNav');
+            const navbar = document.querySelector('.modern-navbar');
+            if(navMenu && navMenu.classList.contains('show')) {
+                navMenu.classList.remove('show');
+                navbar.classList.remove('menu-open');
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.getElementById('mobileMenuToggler');
+            const navMenu = document.getElementById('navbarNav');
+            const navbar = document.querySelector('.modern-navbar'); 
+
+            if (toggleBtn && navMenu && navbar) {
+                toggleBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navMenu.classList.toggle('show');
+                    navbar.classList.toggle('menu-open');
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (navMenu.classList.contains('show') && !navMenu.contains(e.target) && !toggleBtn.contains(e.target)) {
+                        closeMobileMenu();
+                    }
+                });
+            }
+
+            const desktopNav = document.getElementById('dynamicListNav');
+            const mobileNav = document.getElementById('dynamicListNavMobile');
+            
+            if(desktopNav && mobileNav) {
+                const syncNavs = () => {
+                    mobileNav.innerHTML = '';
+                    Array.from(desktopNav.children).forEach(desktopAnchor => {
+                        const li = document.createElement('li');
+                        li.className = 'nav-item w-100';
+                        
+                        const a = document.createElement('a');
+                        a.className = 'nav-link fw-bold w-100 text-dark';
+                        a.innerHTML = desktopAnchor.innerHTML; 
+                        
+                        const listId = desktopAnchor.id.replace('nav-list-', '');
+                        
+                        a.onclick = () => {
+                            if (window.openList) window.openList(listId);
+                            closeMobileMenu();
+                        };
+                        a.style.cursor = 'pointer';
+                        
+                        li.appendChild(a);
+                        mobileNav.appendChild(li);
+                    });
+                };
+
+                const observer = new MutationObserver(syncNavs);
+                observer.observe(desktopNav, { childList: true, subtree: true });
+            }
+        });
+
+        window.switchSettingPanel = function(panelId, element) {
+            document.querySelectorAll('.settings-menu-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.setting-panel').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            const targetPanel = document.getElementById(panelId);
+            if(targetPanel) targetPanel.classList.add('active');
+        };
+    </script>
+    
+    <script type="module">
+        import { auth, db } from "./js/firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                let isAdmin = false;
+                try {
+                    const userSnap = await getDoc(doc(db, "users", user.uid));
+                    if (userSnap.exists()) {
+                        const role = userSnap.data().role;
+                        if (role === 'admin' || role === 'owner') isAdmin = true;
+                    }
+                } catch (error) {
+                    console.error("ئیرۆر لە داتابەیس:", error);
+                }
+
+                if (isAdmin) {
+                    document.body.classList.add('is-admin');
+                } else {
+                    document.body.classList.remove('is-admin');
+                    const settingsSection = document.getElementById('settings');
+                    if (settingsSection) settingsSection.remove();
+                    document.querySelectorAll('.admin-only').forEach(el => el.remove());
+                }
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const originalNavTo = window.navTo;
+                window.navTo = function(viewId) {
+                    const target = document.getElementById(viewId);
+                    if (!target) return; // ڕێگریکردن لە کراش و سپیبوونی پەڕەکە
+                    
+                    if (viewId === 'settings' && !document.body.classList.contains('is-admin')) {
+                        Swal.fire('ببوورە', 'تەنیا ئەدمین دەسەڵاتی چوونە ناو ڕێکخستنەکانی هەیە', 'error');
+                        return;
+                    }
+                    if(typeof originalNavTo === 'function') {
+                        originalNavTo(viewId);
+                    }
+                };
+            }, 1000);
+        });
+    </script>
+
+    <script>
+    const statusDiv = document.getElementById('connection-status');
+    function updateConnectionStatus() {
+        if (!navigator.onLine) {
+            statusDiv.innerHTML = '<i class="fas fa-wifi-slash me-2"></i> هێڵ نییە (Offline) - داتاکان لەسەر مۆبایل سەیڤ دەبن';
+            statusDiv.className = 'status-offline';
+        } else {
+            statusDiv.innerHTML = '<i class="fas fa-wifi me-2"></i> پەیوەست بوویەوە (Online)';
+            statusDiv.className = 'status-online';
+            setTimeout(() => { statusDiv.style.top = '-60px'; }, 3000);
+        }
+    }
+    window.addEventListener('online', updateConnectionStatus);
+    window.addEventListener('offline', updateConnectionStatus);
+    window.addEventListener('load', () => { if(!navigator.onLine) updateConnectionStatus(); });
+    </script>
+</body>
+</html>

@@ -1,0 +1,554 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap');
+
+:root {
+    --primary: #4e73df;
+    --dark: #2c3e50;
+    --light: #f8f9fc;
+    --sidebar-w: 260px;
+}
+
+body { 
+    font-family: 'Noto Naskh Arabic', sans-serif; 
+    background: var(--light); 
+    overflow-x: hidden; 
+    margin: 0;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: var(--sidebar-w);
+    height: 100vh;
+    position: fixed;
+    top: 0; 
+    right: 0; /* RTL alignment */
+    background: #1e272e;
+    color: white;
+    padding-top: 20px;
+    z-index: 1050;
+    transition: all 0.3s ease;
+    overflow-y: auto;
+}
+
+.sidebar-brand { 
+    text-align: center; 
+    font-size: 1.3rem; 
+    margin-bottom: 30px; 
+    font-weight: bold; 
+    color: #fff; 
+}
+
+.nav-link { 
+    color: #bdc3c7; 
+    padding: 12px 20px; 
+    cursor: pointer; 
+    transition: 0.2s; 
+    display: flex;
+    align-items: center;
+}
+
+.nav-link:hover, .nav-link.active { 
+    background: rgba(255,255,255,0.1); 
+    color: white; 
+    border-right: 4px solid var(--primary); 
+}
+
+.nav-link i { margin-left: 10px; width: 25px; text-align: center; }
+
+/* Main Content */
+.main-content { 
+    margin-right: var(--sidebar-w); 
+    padding: 30px; 
+    transition: all 0.3s ease;
+    min-height: 100vh;
+}
+
+.view-section { display: none; animation: fadein 0.3s; }
+.view-section.active { display: block; }
+
+@keyframes fadein { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Cards */
+.card-box { 
+    background: white; 
+    border-radius: 8px; 
+    padding: 20px; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
+    margin-bottom: 20px; 
+}
+
+.list-card {
+    background: white; 
+    border-radius: 10px; 
+    padding: 25px;
+    border-top: 5px solid #ccc;
+    cursor: pointer; 
+    transition: 0.3s;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    height: 100%;
+}
+.list-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+.list-card i { font-size: 2.5rem; margin-bottom: 15px; opacity: 0.8; }
+
+/* Mobile Menu Button */
+.mobile-toggle {
+    display: none;
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1100;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1040;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 991px) {
+    .sidebar { right: calc(var(--sidebar-w) * -1); }
+    .sidebar.active { right: 0; }
+    .main-content { margin-right: 0; padding: 20px 15px; padding-top: 70px; }
+    .mobile-toggle { display: block; }
+    .sidebar-overlay.active { display: block; }
+    .table-responsive { border: 0; }
+}
+
+@media print {
+    .sidebar, .mobile-toggle, .no-print { display: none !important; }
+    .main-content { margin: 0; padding: 0; }
+    .card-box { box-shadow: none; border: none; }
+}
+
+/* Action Menu Styles */
+.action-menu {
+    position: relative;
+    display: inline-block;
+}
+.menu-btn {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.menu-btn:hover { background: #f1f1f1; }
+
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    left: 0; /* لای چەپ دەکرێتەوە */
+    top: 110%;
+    background: white;
+    min-width: 180px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    border-radius: 8px;
+    z-index: 1000;
+    overflow: hidden;
+}
+.menu-dropdown.show { display: block; }
+
+.menu-dropdown button {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    border: none;
+    background: none;
+    text-align: right;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    font-size: 0.95rem;
+}
+.menu-dropdown button:hover { background: #f8f9fa; }
+.menu-dropdown button i { margin-left: 10px; width: 20px; text-align: center; color: #666; }
+.menu-dropdown button.text-danger:hover { background: #fff5f5; }
+
+/* شێوازی ئەو ڕیزەی کە ڕادەکێشرێت */
+.sortable-ghost {
+    opacity: 0.4;
+    background-color: #f1f1f1 !important;
+}
+
+.drag-handle {
+    cursor: grab;
+    padding: 5px;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+/* =========================================
+   Moved from index.html (System Styles)
+   ========================================= */
+
+/* Admin Visibility */
+.admin-only {
+    display: none !important;
+}
+
+/* Loading Screen */
+#loading-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #f8f9fc;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Settings Layout */
+.settings-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.settings-sidebar {
+    width: 260px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid #f0f0f0;
+}
+
+.settings-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 18px 20px;
+    color: #5a5c69;
+    text-decoration: none;
+    border-bottom: 1px solid #f8f9fc;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+}
+
+.settings-menu-item:last-child {
+    border-bottom: none;
+}
+
+.settings-menu-item:hover {
+    background: #f8f9fc;
+    padding-right: 25px;
+    color: #4e73df;
+}
+
+.settings-menu-item.active {
+    background: #4e73df;
+    color: white;
+    border-color: #4e73df;
+}
+
+.settings-menu-item.active::after {
+    content: '\f053';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    left: 15px;
+    font-size: 12px;
+}
+
+.settings-menu-item i {
+    margin-left: 15px;
+    width: 25px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.settings-content {
+    flex-grow: 1;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    padding: 35px;
+    min-height: 550px;
+    border: 1px solid #f0f0f0;
+}
+
+.setting-panel {
+    display: none;
+    animation: fadeInPanel 0.4s ease-out;
+}
+
+.setting-panel.active {
+    display: block;
+}
+
+@keyframes fadeInPanel {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Phone Cell Styling */
+.phone-cell-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border: 1px solid #e3e6f0;
+    border-radius: 50px;
+    padding: 5px 15px;
+    width: 100%;
+    max-width: 240px;
+    margin: 0 auto;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+}
+
+.phone-cell-container:hover {
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+.phone-text {
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    font-size: 15px;
+    color: #2c3e50;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+}
+
+.status-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+}
+
+.status-dot:hover {
+    transform: scale(1.2);
+}
+
+/* Buttons */
+.btn-whatsapp {
+    background-color: #25D366;
+    color: white;
+    border: none;
+}
+
+.btn-whatsapp:hover {
+    background-color: #128C7E;
+    color: white;
+}
+
+/* Action Bar Styling */
+.action-bar-container {
+    background: #ffffff;
+    border-radius: 12px;
+    margin-top: -20px; /* کەمێک دەچێتە سەرەوە بۆ ئەوەی جوانتر بێت */
+}
+
+/* Input Group Styling */
+.input-group-text {
+    background-color: #f8f9fc !important;
+    border-color: #e3e6f0;
+}
+
+#listSearch {
+    background-color: #f8f9fc;
+    border-color: #e3e6f0;
+    font-size: 0.95rem;
+}
+
+#listSearch:focus {
+    background-color: #fff;
+    box-shadow: none;
+    border-color: #4e73df;
+}
+
+/* Buttons Styling */
+.btn {
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary {
+    background-color: #4e73df;
+    border-color: #4e73df;
+    box-shadow: 0 2px 6px rgba(78, 115, 223, 0.3);
+}
+
+.btn-primary:hover {
+    background-color: #2e59d9;
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background-color: #1cc88a;
+    border-color: #1cc88a;
+    box-shadow: 0 2px 6px rgba(28, 200, 138, 0.3);
+}
+
+.btn-success:hover {
+    background-color: #17a673;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: #858796;
+    border-color: #858796;
+}
+
+/* =========================================
+   MOBILE RESPONSIVENESS
+   ========================================= */
+
+/* Mobile Toggle Button (Default Hidden on Desktop) */
+.mobile-toggle {
+    display: none;
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1100;
+    background: #4e73df;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1040;
+}
+
+/* --- Mobile Rules (Screens smaller than 768px) --- */
+@media (max-width: 768px) {
+    
+    /* 1. Sidebar Logic */
+    .sidebar {
+        right: -260px; /* Hide sidebar initially */
+        transition: right 0.3s ease;
+    }
+    
+    .sidebar.active {
+        right: 0; /* Show when active */
+    }
+
+    /* 2. Main Content Adjustments */
+    .main-content {
+        margin-right: 0; /* Full width */
+        padding: 15px;
+        width: 100%;
+    }
+
+    /* 3. Show Menu Button */
+    .mobile-toggle {
+        display: block;
+    }
+
+    /* 4. Table Adjustments */
+    .table th, .table td {
+        font-size: 0.85rem; /* Smaller text for tables */
+        padding: 8px 5px;
+    }
+    
+    /* 5. Action Bar Stack */
+    .action-bar-container .col-md-8 {
+        justify-content: center !important; /* Center buttons */
+    }
+    
+    .action-bar-container .btn {
+        width: 100%; /* Full width buttons on mobile */
+        justify-content: center;
+        margin-bottom: 5px;
+    }
+
+    /* 6. Fix SweetAlert Width */
+    div:where(.swal2-container) div:where(.swal2-popup) {
+        width: 95% !important; /* Make popups fit screen */
+    }
+
+    /* 7. Dashboard Cards */
+    .card-box h1 {
+        font-size: 2rem; /* Smaller total amount font */
+    }
+}
+
+/* شاردنەوەی دەسکی ڕاکێشان بۆ ئەوانەی ئەدمین نین */
+body:not(.is-admin) .drag-handle {
+    pointer-events: none !important; /* ڕێگری لە کلیک کردن */
+    opacity: 0 !important;          /* شاردنەوەی شێوەکەی */
+    cursor: default !important;
+}
+
+/* css/style.css */
+
+/* ڕەنگی ئەو ڕیزەی کە ڕاگیراوە (سووری کاڵ) */
+.stopped-row {
+    background-color: #ffebee !important; 
+}
+/* ڕەنگی نوسینەکەی دەبێت بە سوور */
+.stopped-row td {
+    color: #c62828 !important;
+}
+
+/* ستایلی ژمارە تەلەفۆن کاتێک ڕاگیراوە (هێڵی بەسەردا دێت) */
+.blocked-phone {
+    text-decoration: line-through;
+    cursor: not-allowed;
+    color: #b71c1c !important;
+    font-weight: bold;
+}
+
+/* ستایلی نیشاندەری هێڵ (Offline Indicator) */
+#connection-status {
+    position: fixed;
+    top: -60px; /* لە سەرەتادا شاردراوەتەوە لە سەرووی شاشە */
+    left: 0;
+    width: 100%;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-family: 'Noto Naskh Arabic', sans-serif;
+    z-index: 9999; /* دەبێت لە سەرووی هەموو شتێکەوە بێت */
+    transition: top 0.5s ease-in-out;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    font-size: 1rem;
+}
+
+/* کاتێک هێڵ نامێنێت (سور) */
+.status-offline {
+    background-color: #e74c3c;
+    color: white;
+    top: 0 !important; /* دێتە خوارەوە */
+}
+
+/* کاتێک هێڵ دەگەڕێتەوە (سەوز) */
+.status-online {
+    background-color: #27ae60;
+    color: white;
+    top: 0 !important;
+}

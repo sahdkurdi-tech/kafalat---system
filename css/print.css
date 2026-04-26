@@ -1,0 +1,137 @@
+body { 
+    font-family: 'Noto Naskh Arabic', sans-serif;
+    margin: 0; 
+    padding: 20px; 
+    background: #fff;
+}
+
+/* ---   (List Style) --- */
+.print-header {
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 15px;
+}
+
+/* */
+.print-logo {
+    max-height: 150px;
+    width: auto;
+    display: block;
+    margin: 0 auto 15px auto;
+}
+
+/* -  */
+.print-header h1 {
+    margin: 10px 0 0 0;
+    padding: 0;
+    font-size: 24px;
+    color: #000;
+    font-weight: bold;
+    background: none !important;
+}
+
+.print-table { 
+    width: 100%;
+    border-collapse: collapse; 
+    margin-top: 10px; 
+    font-size: 14px; 
+}
+.print-table th, .print-table td { 
+    border: 1px solid #000;
+    padding: 6px 8px; 
+    text-align: center; 
+    vertical-align: middle;
+}
+
+.print-table th { 
+    font-weight: bold;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+/* ---   (Envelope Style) --- */
+.envelope-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.envelope {
+    width: 218mm;
+    height: 108mm;
+    position: relative;
+    page-break-after: always;
+    border: 0;
+    overflow: hidden;
+    background: white;
+    box-sizing: border-box;
+}
+
+.env-month {
+    position: absolute;
+    top: 15mm;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    min-width: 100px;
+}
+
+.env-name {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 22px; 
+    font-weight: bold;
+    width: fit-content;
+    min-width: 200px;
+    white-space: nowrap;
+    text-align: center;
+    padding: 10px 30px;
+    border-radius: 15px; 
+    background: #fff;
+    z-index: 2;
+}
+
+.env-amount {
+    position: absolute;
+    bottom: 15mm;
+    left: 20mm;
+    font-size: 18px;
+    font-weight: bold;
+    border: 2px solid #000;
+    padding: 5px 15px;
+    border-radius: 8px;
+}
+
+.env-number {
+    position: absolute;
+    bottom: 15mm;
+    right: 20mm;
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-print-color-adjust: exact !important;
+}
+
+@media print {
+     .no-print { display: none;
+    }
+     * { -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important; }
+
+     /* ---         --- */
+     thead {
+        display: table-row-group;
+    }
+}

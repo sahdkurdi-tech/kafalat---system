@@ -1,0 +1,344 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap');
+
+body { 
+    font-family: 'Noto Naskh Arabic', sans-serif; 
+    background: #f8f9fc; 
+    margin: 0; 
+    display: flex;
+    height: 100vh; 
+    overflow: hidden; 
+}
+
+/* Sidebar Styling */
+.sidebar { 
+    width: 260px; 
+    background: #1e272e; 
+    color: white;
+    padding: 20px; 
+    display: flex; 
+    flex-direction: column; 
+    z-index: 1050; 
+    flex-shrink: 0;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+.sidebar h3 { font-size: 1.4rem; }
+.nav-btn { 
+    background: #4e73df; 
+    color: #fff; 
+    padding: 12px 20px; 
+    text-align: center; 
+    cursor: pointer; 
+    font-size: 1rem; 
+    border-radius: 8px; 
+    text-decoration: none; 
+    transition: 0.3s ease;
+    border: none;
+    font-weight: bold;
+}
+.nav-btn:hover { background: #2e59d9; color: white; }
+
+/* Main Content */
+.main-content { 
+    flex-grow: 1; 
+    padding: 30px; 
+    overflow-y: auto; 
+    background: #f8f9fc;
+}
+
+/* ========================================= */
+/* دیزاینی مۆدێرنی خشتەکە (سەر کۆمپیوتەر) */
+/* ========================================= */
+.modern-table {
+    border-collapse: separate !important;
+    border-spacing: 0 10px !important;
+    background: transparent !important;
+    margin-top: -10px;
+}
+
+.modern-table thead th {
+    background: transparent !important;
+    color: #858796;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none !important;
+    padding: 10px 15px;
+}
+
+.modern-table tbody tr {
+    background: #ffffff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+    border-radius: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modern-table tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    z-index: 1;
+    position: relative;
+}
+
+.modern-table td {
+    border: none !important;
+    padding: 14px 15px !important;
+    vertical-align: middle;
+    font-size: 0.95rem;
+}
+
+.modern-table td:first-child { border-radius: 0 10px 10px 0; }
+.modern-table td:last-child { border-radius: 10px 0 0 10px; }
+
+.name-cell { transition: 0.2s; }
+.name-cell:hover { color: #2e59d9 !important; }
+
+.avatar-circle {
+    width: 35px;
+    height: 35px;
+    background: #f8f9fc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4e73df;
+    font-size: 14px;
+    border: 1px solid #eaecf4;
+}
+
+.custom-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    display: inline-block;
+}
+
+/* ========================================= */
+/* دیزاینی کارت بۆ مۆبایل (بچووکتر و ڕێکخراوتر) */
+/* ========================================= */
+@media (max-width: 992px) {
+    .sidebar { display: none; }
+    .main-content { padding: 15px; }
+    
+    .modern-table thead { display: none; }
+    
+    .modern-table, .modern-table tbody, .modern-table tr, .modern-table td {
+        display: block;
+        width: 100%;
+    }
+    
+    .modern-table tr {
+        margin-bottom: 12px; /* بۆشایی نێوان کارتەکان کەمکرایەوە */
+        padding: 0;
+        border: 1px solid #e3e6f0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .modern-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px !important; /* پادینگی ناوەوە کەمکرایەوە */
+        border-bottom: 1px solid #f1f3f9 !important;
+        font-size: 0.85rem; /* فۆنت کەمێک بچووککرایەوە */
+    }
+    
+    .modern-table td:last-child { border-bottom: none !important; }
+    
+    .modern-table td::before {
+        content: attr(data-label);
+        color: #a0a2b1; /* ڕەنگێکی کاڵتر بۆ ناوی ستوونەکە */
+        font-size: 0.8rem;
+        margin-left: 10px;
+        text-align: right;
+        flex-shrink: 0;
+    }
+    
+    /* بەشی سەرەوەی کارتەکە (ناوی کەسەکە) */
+    .modern-table td[data-label="ناوی کەس"] {
+        background: #f8f9fc;
+        padding: 10px 12px !important;
+        border-bottom: 2px solid #eaecf4 !important;
+    }
+    .modern-table td[data-label="ناوی کەس"]::before { display: none; }
+    .modern-table td[data-label="ناوی کەس"] .d-flex { 
+        width: 100%; 
+        justify-content: right; 
+        font-size: 1rem; 
+        font-weight: bold;
+    }
+    
+    .avatar-circle { width: 30px; height: 30px; font-size: 12px; } /* بچووککردنەوەی وێنە */
+}
+
+/* ========================================= */
+/* دیزاینی نوێی مۆدال (وردەکاری کەسەکان) */
+/* ========================================= */
+.swal-custom-popup {
+    border-radius: 16px !important;
+    padding: 0 !important;
+    overflow: hidden;
+    background: #f8f9fc !important;
+}
+
+.modal-header-bg {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    padding: 30px 20px 20px;
+    text-align: center;
+    color: white;
+    position: relative;
+}
+
+.modal-avatar-lg {
+    width: 70px;
+    height: 70px;
+    background: white;
+    color: #4e73df;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    margin: 0 auto 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.modal-name-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin: 0 0 5px 0;
+}
+
+.modal-body-content {
+    padding: 20px;
+    text-align: right;
+}
+
+.amount-highlight-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    margin-bottom: 15px;
+    border: 1px solid #eaecf4;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.info-item-card {
+    background: white;
+    border-radius: 10px;
+    padding: 12px 15px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #eaecf4;
+}
+
+.info-label {
+    font-size: 0.8rem;
+    color: #858796;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.info-value {
+    font-size: 1rem;
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+.close-modal-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.close-modal-btn:hover { background: rgba(255,255,255,0.4); }
+
+/* ========================================= */
+/* تایبەت بە چاپکردن (Print) */
+/* ========================================= */
+/* ========================================= */
+/* تایبەت بە چاپکردن (Print & PDF) ڕەنگاوڕەنگ */
+/* ========================================= */
+@media print {
+    @page { 
+        size: A4 landscape; 
+        margin: 10mm; 
+    }
+    
+    body { 
+        background: white !important; 
+        height: auto !important; 
+        overflow: visible !important; 
+        /* ئەم دوو دێڕە زۆر گرنگن بۆ دەرکردنی ڕەنگەکان لە پرێنتدا */
+        -webkit-print-color-adjust: exact !important; 
+        print-color-adjust: exact !important;
+    }
+    
+    .sidebar, .main-content { 
+        display: none !important; 
+    }
+    
+    #printable-area {
+        display: block !important;
+        width: 100%;
+        direction: rtl;
+    }
+    
+    #print-table-container table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 11pt; /* قەبارەی فۆنتەکە کەمێک بچووککرایەوە بۆ جوانی */
+        margin-top: 15px;
+    }
+    
+    /* هێڵەکان کران بە خۆڵەمێشییەکی کاڵ و جوان لەبری ڕەشی تۆخ */
+    #print-table-container th, #print-table-container td {
+        border: 1px solid #e3e6f0 !important; 
+        padding: 10px 8px;
+        text-align: center;
+        vertical-align: middle;
+        color: #333 !important;
+    }
+    
+    /* دیزاینی سەردێڕی خشتەکە */
+    #print-table-container th {
+        background-color: #f8f9fc !important;
+        color: #4e73df !important; 
+        font-weight: bold;
+        border-bottom: 2px solid #eaecf4 !important;
+    }
+
+    #print-table-container tr { 
+        page-break-inside: avoid; 
+    }
+    
+    /* ڕێکخستنی باجەکانی ناو پرێنت بۆ ئەوەی تێک نەچن */
+    .badge {
+        border-radius: 20px !important;
+        padding: 6px 12px !important;
+        display: inline-block !important;
+        font-size: 12px !important;
+        border: none !important;
+    }
+}
