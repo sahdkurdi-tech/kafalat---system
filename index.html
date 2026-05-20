@@ -16,6 +16,13 @@
     <link rel="apple-touch-icon" href="icon-192.png">
 
     <style id="custom-design-styles">
+        /* پاراستنی UI بۆ ستاف - هێزی زۆرەملێ بۆ شاردنەوەی سێتینگ لە لاپتۆپ و مۆبایل */
+        body:not(.is-admin) .admin-only,
+        body:not(.is-admin) #sidebar .admin-only,
+        body:not(.is-admin) #sidebar .nav-link.admin-only {
+            display: none !important;
+        }
+
         /* =========================================
            دیزاینی دەسکتاپ (شێوازی تیلیگرام)
            ========================================= */
@@ -74,7 +81,7 @@
 
         @media (max-width: 991px) {
             #sidebar { display: none !important; } 
-            .mobile-toggle, .sidebar-overlay { display: none !important; } /* شاردنەوەی دوگمە کۆنەکەی مۆبایل */
+            .mobile-toggle, .sidebar-overlay { display: none !important; } 
             
             .main-content {
                 padding-top: 110px !important; 

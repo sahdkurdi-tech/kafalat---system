@@ -111,7 +111,7 @@ async function init() {
         const nameField = listFields.find(f => f.type === 'sys_name' || f.label.includes('ناو') || f.label.includes('Name'));
         const amountField = listFields.find(f => f.type === 'sys_amount' || f.label.includes('پارە') || f.label.includes('Amount') || f.type === 'number');
 
-let benSnap;
+        let benSnap;
         try {
             // زیادکردنی مەرجی چالاکبوون
             const benQuery = query(
@@ -190,13 +190,16 @@ let benSnap;
                 }
             });
             html += `<th ${thStyle} style="width: 120px;">واژوو / تێبینی</th></tr></thead><tbody>`;
-            let counter = 1;
             
+            let counter = 1;
             const today = new Date();
             today.setHours(0,0,0,0);
 
             beneficiaries.forEach(data => {
-                const rowIndex = data.orderIndex || counter++;
+                // ژمارەکە بەدروستی وەردەگرێت وە دڵنیادەبێتەوە لە زیادبوونی کاونتەرەکە
+                const rowIndex = data.orderIndex || counter;
+                counter++;
+                
                 html += `<tr><td>${rowIndex}</td>`;
 
                 listFields.forEach(f => {
@@ -224,7 +227,6 @@ let benSnap;
                     // ===================================================
                     let cellClass = '';
                     
-                    // پشکنین بۆ هەموو ئەو خانانەی ناوی "تاکو" یان "بەروار"یان تێدایە
                     const isDateColumn = f.type === 'date' || 
                                          f.label.includes('تاکو') || 
                                          f.label.includes('بەروار') ||
@@ -232,22 +234,18 @@ let benSnap;
                                          f.label.includes('کۆتایی');
 
                     if (isDateColumn && val && val !== '-') {
-                        // ١. گۆڕینی ژمارەی ئێکسڵ (46113) بۆ بەرواری ڕاست
                         const dateObj = parseAnyDate(val);
 
                         if (dateObj) {
-                            // ٢. حیسابی ڕۆژەکان
                             const diffTime = dateObj - today;
                             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                            // ٣. دیاریکردنی ڕەنگ (بەسەرچوو یان نزیک)
                             if (diffDays < 0) {
                                 cellClass = 'expired-cell'; 
                             } else if (diffDays <= 30) {
                                 cellClass = 'warning-cell';
                             }
 
-                            // ٤. نوسینەوەی بەروارەکە بە جوانی (ڕۆژ/مانگ/ساڵ)
                             const d = String(dateObj.getDate()).padStart(2, '0');
                             const m = String(dateObj.getMonth() + 1).padStart(2, '0');
                             const y = dateObj.getFullYear();
@@ -323,22 +321,19 @@ let benSnap;
             `;
             document.head.appendChild(style);
 
-// لەناو js/print-logic.js، لە بەشی type === 'envelope'
-
             let html = ``;
             let counter = 1;
 
             for (let i = 0; i < beneficiaries.length; i++) {
                 const data = beneficiaries[i];
+                
+                // دیاریکردنی ژمارەی ڕیزبەندی ڕێک وەک لیستەکە پێش بەکارهێنانی Continue
+                const orderNum = data.orderIndex || counter;
+                counter++;
 
-                // === ئەم مەرجە نوێیەی لێرە زیاد بکە ===
-                // ئەگەر printEnvelope هەبوو و false بوو، ئەم ناوە تێپەڕێنە (Continue)
                 if (data.printEnvelope === false) {
                     continue;
                 }
-                // ======================================
-
-                const orderNum = data.orderIndex || counter++;
                 
                 let name = data.name || '';
                 if (!name && nameField && data.dynamic && data.dynamic[nameField.id]) {
@@ -369,7 +364,7 @@ let benSnap;
                 </div>`;
             }
             container.innerHTML = html;
-                }
+        }
 
         setTimeout(() => {
             window.print();

@@ -15,6 +15,32 @@ export async function getMaxOrderIndex(listId) {
     return snap.docs[0].data().orderIndex || 0;
 }
 
+// --- فەنکشنی نوێ بۆ ڕێکخستنەوەی ئۆتۆماتیکی ڕیزبەندییەکان ---
+export async function reorderAllRows(listId) {
+    try {
+        const q = query(
+            collection(db, "lists", listId, "beneficiaries"),
+            where("status", "==", "active"),
+            orderBy("orderIndex", "asc")
+        );
+        const snap = await getDocs(q);
+        const batch = writeBatch(db);
+        
+        let newIndex = 1;
+        snap.forEach(docSnap => {
+            const docRef = doc(db, "lists", listId, "beneficiaries", docSnap.id);
+            batch.update(docRef, { orderIndex: newIndex });
+            newIndex++;
+        });
+        
+        if (newIndex > 1) {
+            await batch.commit();
+        }
+    } catch (error) {
+        console.error("Error reordering rows:", error);
+    }
+}
+
 // --- ACTIVE LIST VIEW ---
 export async function openList(listId) {
     window.currentListId = listId;
@@ -187,7 +213,6 @@ export function loadListData(listId) {
                     if (d.aidStatus === 'received') aidBadge = '<span class="badge bg-success ms-2 small">وەرگرت</span>';
                     else if (d.aidStatus === 'not_received') aidBadge = '<span class="badge bg-danger ms-2 small">وەرنەگرت</span>';
 
-                    // +++ چارەسەری کێشەی سکڕۆڵ بە گۆڕینی href="#" بۆ javascript:void(0) +++
                     allRowsHTML += `<td style="vertical-align: middle; ${rowStyle}">
                         <a href="javascript:void(0)" onclick="window.viewDetails('${dataStr}')" class="fw-bold text-dark text-decoration-none">
                             ${starIcon}${cellVal} ${aidBadge}
@@ -296,7 +321,6 @@ function getDynamicFormHTML(listId, existingData = {}) {
     const fields = formFields.filter(f => f.listId === listId).sort((a,b) => a.order - b.order);
     let html = `<div class="text-start">`;
     
-    // کۆدی دروستکردنی کێڵگەکان (Fields) [cite: 442]
     fields.forEach(f => {
         let val = existingData.dynamic ? (existingData.dynamic[f.id] || '') : '';
         
@@ -304,7 +328,7 @@ function getDynamicFormHTML(listId, existingData = {}) {
         if (!val && f.type === 'sys_amount') val = existingData.amount || '';
 
         if ((f.label.includes("بەروار") || f.type === 'date' || f.label.includes("date") || f.label.includes("expiry") || f.label.includes("بەسەرچوون")) && val) {
-            let parsed = parseDateRobust(val); // تێبینی: دڵنیابەرەوە ئەم فانکشنە لە سەرەوە پێناسە کراوە یان import کراوە [cite: 389]
+            let parsed = parseDateRobust(val); 
             if(parsed) val = parsed.toISOString().split('T')[0];
         }
 
@@ -340,8 +364,6 @@ function getDynamicFormHTML(listId, existingData = {}) {
         }
     });
 
-    // === بەشی نوێ: دوگمەی چاپکردن بۆ زەرف ===
-    // ئەگەر داتای کۆن نەبوو (زیادکردن)، یان ئەگەر هەبوو و printEnvelope بەهای هەبوو
     const shouldPrint = (existingData.printEnvelope === undefined) ? true : existingData.printEnvelope;
     const checkedAttr = shouldPrint ? 'checked' : '';
 
@@ -355,7 +377,6 @@ function getDynamicFormHTML(listId, existingData = {}) {
         </div>
     `;
 
-    // === بەشی نوێ: دوگمەی ئەستێرە ===
     const isStarredChecked = existingData.isStarred ? 'checked' : '';
     html += `
         <div class="form-check form-switch p-0 d-flex align-items-center gap-2 bg-light rounded p-2 border mt-2">
@@ -365,14 +386,10 @@ function getDynamicFormHTML(listId, existingData = {}) {
             </label>
         </div>
     `;
-    // ==========================================
-    // ==========================================
 
     html += `</div>`;
     return { html, fields };
 }
-// --- OPEN ENTRY ---
-// لەناو js/beneficiary-service.js
 
 export async function openEntryModal() {
     if (!window.currentListId) return;
@@ -386,7 +403,7 @@ export async function openEntryModal() {
         width: '600px', 
         showCancelButton: true, 
         confirmButtonText: 'پاشەکەوتکردن',
-preConfirm: () => {
+        preConfirm: () => {
             const dynamicData = {};
             fields.forEach(f => {
                 const el = document.getElementById(`f-${f.id}`);
@@ -394,13 +411,12 @@ preConfirm: () => {
             });
             const printEnvelope = document.getElementById('inp-print-env')?.checked || false;
             
-            // چارەسەری سەلامەت بۆ دۆزینەوەی ئەستێرەکە
             const starCheckbox = document.getElementById('inp-is-starred');
             const isStarred = starCheckbox ? starCheckbox.checked : false;
 
             return { dynamicData, printEnvelope, isStarred };
         }
-        });
+    });
 
     if(res) {
         Swal.fire({title: 'جارێك بۆستە...', didOpen: () => Swal.showLoading()});
@@ -415,32 +431,24 @@ preConfirm: () => {
         }
 
         const maxIdx = await getMaxOrderIndex(window.currentListId);
-        
-        // === لۆژیکی ئۆتۆماتیکی بلۆک ===
-        // ئەگەر زەرف کوژایەوە (false)، ئەوا بلۆک دەبێتە (true)
         const autoBlock = !res.printEnvelope; 
 
-await addDoc(collection(db, "lists", window.currentListId, "beneficiaries"), {
+        await addDoc(collection(db, "lists", window.currentListId, "beneficiaries"), {
             listId: window.currentListId, 
             name: primaryName,      
             amount: primaryAmount,  
             dynamic: res.dynamicData, 
             printEnvelope: res.printEnvelope,
-            isStarred: res.isStarred || false, // <--- لێرەدا دڵنیا دەبینەوە کە تەنها true یان false دەبێت
+            isStarred: res.isStarred || false, 
             isCallBlocked: autoBlock, 
             status: 'active', 
             orderIndex: maxIdx + 1, 
             createdAt: new Date()
         });
-                Swal.fire('تەواو', 'بە سەرکەوتوویی زیادکرا', 'success');
+        Swal.fire('تەواو', 'بە سەرکەوتوویی زیادکرا', 'success');
     }
 }
 
-// js/beneficiary-service.js
-
-// ==========================================
-// پیشاندانی وردەکارییەکان (دیزاینە نوێیەکە)
-// ==========================================
 export function viewDetails(dataStr) {
     const item = JSON.parse(decodeURIComponent(dataStr));
     
@@ -459,7 +467,6 @@ export function viewDetails(dataStr) {
     else if (item.callStatus === 'off') callBadge = '<span class="badge bg-danger"><i class="fas fa-power-off"></i> داخراوە</span>';
     else if (item.callStatus === 'wrong') callBadge = '<span class="badge bg-dark"><i class="fas fa-exclamation-triangle"></i> هەڵەیە</span>';
 
-    // +++ دۆزینەوەی ناوی دروست بەپێی خانە داینامیکییەکان +++
     let visibleFields = formFields.filter(f => f.listId === window.currentListId).sort((a,b) => a.order - b.order);
     let realName = item.name;
     let nameField = visibleFields.find(f => f.type === 'sys_name' || f.label.includes('ناو'));
@@ -468,7 +475,6 @@ export function viewDetails(dataStr) {
     }
     if (!realName || realName === '-') realName = 'بێ ناو';
 
-    // بەشی سەرەوەی کارتەکە
     html += `
         <div class="col-12 mb-3 text-center">
             <div class="p-3 rounded-4" style="background: linear-gradient(135deg, ${listColor}15, transparent); border: 1px solid ${listColor}40;">
@@ -545,7 +551,7 @@ export async function editEntry(id, dataStr) {
         width: '600px', 
         showCancelButton: true, 
         confirmButtonText: 'نوێکردنەوە', 
-preConfirm: () => { 
+        preConfirm: () => { 
             const dd={};
             fields.forEach(f => {
                 const el = document.getElementById(`f-${f.id}`);
@@ -553,13 +559,12 @@ preConfirm: () => {
             });
             const printEnvelope = document.getElementById('inp-print-env')?.checked || false;
             
-            // چارەسەری سەلامەت بۆ دۆزینەوەی ئەستێرەکە
             const starCheckbox = document.getElementById('inp-is-starred');
             const isStarred = starCheckbox ? starCheckbox.checked : false;
 
             return { dd, printEnvelope, isStarred }; 
         }
-        });
+    });
     
     if(res) { 
         const firstFieldId = fields[0].id;
@@ -569,16 +574,14 @@ preConfirm: () => {
         const amountField = fields.find(f => f.label.includes('بڕ') || f.label.includes('Amount') || f.type === 'number');
         if (amountField) primaryAmount = Number(res.dd[amountField.id]) || 0;
         
-        // === لۆژیکی ئۆتۆماتیکی بلۆک ===
-        // ئەگەر زەرف کوژایەوە، ڕاستەوخۆ بلۆک دەکرێت
         const autoBlock = !res.printEnvelope;
 
-await updateDoc(doc(db, "lists", window.currentListId, "beneficiaries", id), { 
+        await updateDoc(doc(db, "lists", window.currentListId, "beneficiaries", id), { 
             name: primaryName,
             amount: primaryAmount,
             dynamic: res.dd,
             printEnvelope: res.printEnvelope,
-            isStarred: res.isStarred || false, // <--- لێرەدا دڵنیا دەبینەوە کە تەنها true یان false دەبێت
+            isStarred: res.isStarred || false, 
             isCallBlocked: autoBlock 
         });
         Swal.fire('تەواو', 'زانیارییەکان نوێکرانەوە', 'success'); 
@@ -587,11 +590,19 @@ await updateDoc(doc(db, "lists", window.currentListId, "beneficiaries", id), {
 
 export async function suspendEntry(id) { 
     const {value:r}=await Swal.fire({title: 'هۆکاری ڕاگرتن؟',input:'text',showCancelButton:true}); 
-    if(r) await updateDoc(doc(db, "lists", window.currentListId, "beneficiaries", id),{status:'suspended',suspendReason:r,suspendDate:new Date()});
+    if(r) {
+        await updateDoc(doc(db, "lists", window.currentListId, "beneficiaries", id),{status:'suspended',suspendReason:r,suspendDate:new Date()});
+        await reorderAllRows(window.currentListId); // ڕێکخستنەوەی ڕیزبەندی
+    }
 }
+
 export async function moveToTemporary(id) { 
-    if(confirm("دڵنیای لە گواستنەوە بۆ لیستی کاتی؟")) await updateDoc(doc(db, "lists", window.currentListId, "beneficiaries", id),{status:'temporary',tempDate:new Date()});
+    if(confirm("دڵنیای لە گواستنەوە بۆ لیستی کاتی؟")) {
+        await updateDoc(doc(db, "lists", window.currentListId, "beneficiaries", id),{status:'temporary',tempDate:new Date()});
+        await reorderAllRows(window.currentListId); // ڕێکخستنەوەی ڕیزبەندی
+    }
 }
+
 // --- سڕینەوەی کاتی (ناردن بۆ سەڵە) ---
 export async function deleteEntry(id) { 
     const result = await Swal.fire({
@@ -607,10 +618,13 @@ export async function deleteEntry(id) {
 
     if(result.isConfirmed) {
         await updateDoc(doc(db, "lists", window.currentListId, "beneficiaries", id), {
-            status: 'deleted', // گۆڕینی دۆخ بۆ سڕاوە
-            deletedAt: new Date() // کاتی سڕینەوە
+            status: 'deleted',
+            deletedAt: new Date() 
         });
         Swal.fire('سڕایەوە!', 'ناوەکە چووە سەڵەی سڕاوەکان.', 'success');
+        
+        // +++ ڕاستەوخۆ ژمارەکان ڕێکدەخاتەوە دوای سڕینەوە +++
+        await reorderAllRows(window.currentListId);
     }
 }
 
@@ -626,12 +640,14 @@ export async function restoreEntry(listId, id) {
     });
 
     if(result.isConfirmed) {
+        const maxIdx = await getMaxOrderIndex(listId);
         await updateDoc(doc(db, "lists", listId, "beneficiaries", id), {
-            status: 'active', // دۆخەکەی دەکەینەوە ئەکتیڤ
-            deletedAt: null
+            status: 'active', 
+            deletedAt: null,
+            orderIndex: maxIdx + 1 // دەیخاتە کۆتایی لیستەکە
         });
         Swal.fire('گەڕێندرایەوە', 'ناوەکە گەڕایەوە شوێنی خۆی.', 'success');
-        loadRecycleBinData(); // نوێکردنەوەی لیستی سەڵەکە
+        loadRecycleBinData(); 
     }
 }
 
@@ -650,7 +666,7 @@ export async function permanentDelete(listId, id) {
     if(result.isConfirmed) {
         await deleteDoc(doc(db, "lists", listId, "beneficiaries", id));
         Swal.fire('تەواو', 'بە یەکجارە سڕایەوە.', 'success');
-        loadRecycleBinData(); // نوێکردنەوەی لیستی سەڵەکە
+        loadRecycleBinData(); 
     }
 }
 
@@ -664,8 +680,6 @@ export async function loadRecycleBinData() {
     let html = "";
     let count = 0;
 
-    // گەڕان لەناو هەموو لیستەکاندا
-    // allLists دەبێت import کرابێت
     for (const list of allLists) {
         const q = query(
             collection(db, "lists", list.id, "beneficiaries"),
@@ -702,6 +716,7 @@ export async function loadRecycleBinData() {
         tbody.innerHTML = html;
     }
 }
+
 // ===============================================
 // پەیوەندی و واتسئەپ (و بلۆک کردنی نوێ)
 // ===============================================
@@ -807,10 +822,9 @@ export async function resetAllCallStatuses() {
     }
 }
 
-// +++ نوێکراوەتەوە بۆ پشتگیریکردنی سڕینەوەی دۆخ +++
 export async function updateAidStatus(id, status) {
     try {
-        const statusValue = status === 'clear' ? null : status; // ئەگەر clear بوو دەیکاتە null
+        const statusValue = status === 'clear' ? null : status; 
         
         await updateDoc(doc(db, "lists", window.currentListId, "beneficiaries", id), {
             aidStatus: statusValue
@@ -965,12 +979,7 @@ window.markAsSent = function(id) {
     if (doneIcon) doneIcon.style.display = 'inline';
 };
 
-// js/beneficiary-service.js
-
-// ١. فەنکشنێک بۆ گەڕان بەناو ئەرشیفەکاندا بۆ دۆزینەوەی مێژووی کەسەکە
 async function fetchBeneficiaryHistory(listId, beneficiaryName) {
-    // گەڕان لە کۆلێکشن-ی archives کە هی ئەم لیستەیە
-    // تێبینی: بەپێی  ئەرشیف بەپێی listId (section) تۆمار دەکرێت
     const q = query(
         collection(db, "archives"), 
         where("section", "==", listId), 
@@ -993,8 +1002,6 @@ async function fetchBeneficiaryHistory(listId, beneficiaryName) {
 
     querySnapshot.forEach((doc) => {
         const archiveData = doc.data();
-        // گەڕان بەدوای ناوی کەسەکە لەناو ئەرای items
-        // تێبینی: لە  داتاكان وەك items array تۆمار دەکرێن
         const personRecord = archiveData.items.find(item => item.name === beneficiaryName);
         
         if (personRecord) {
@@ -1030,12 +1037,6 @@ async function fetchBeneficiaryHistory(listId, beneficiaryName) {
     return historyHTML;
 }
 
-// لە ناو js/beneficiary-service.js زیاد بکرێت
-
-// ١. هێنانەوەی لیستی ڕاگیراوان (Suspended)
-// لە ناو js/beneficiary-service.js
-
-// ١. هێنانەوەی لیستی ڕاگیراوان (Suspended) - ڕاستکراوە
 export async function loadSuspendedData() {
     const tbody = document.getElementById("suspendedTableBody");
     if (!tbody) return;
@@ -1044,13 +1045,11 @@ export async function loadSuspendedData() {
     let html = "";
     let foundAny = false;
 
-    // لێرەدا سەرەتا هەموو ڕێکخستنی خانەکان دەکەین بە Map بۆ ئەوەی خێرا بیدۆزینەوە
-    // ئەمە زۆر گرنگە بۆ ئەوەی بزانین یەکەم خانەی هەر لیستێک چییە
     const listFirstFieldMap = {};
     allLists.forEach(list => {
         const fields = formFields.filter(f => f.listId === list.id).sort((a,b) => a.order - b.order);
         if (fields.length > 0) {
-            listFirstFieldMap[list.id] = fields[0].id; // ئایدی یەکەم خانە (کە ناوە) هەڵدەگرین
+            listFirstFieldMap[list.id] = fields[0].id; 
         }
     });
 
@@ -1065,19 +1064,15 @@ export async function loadSuspendedData() {
             foundAny = true;
             const d = docSnap.data();
             
-            // --- چارەسەری کۆتایی بۆ ناو ---
             let displayName = "بێ ناو";
-            const firstFieldId = listFirstFieldMap[list.id]; // ئایدی یەکەم خانەی ئەم لیستە دەهێنین
+            const firstFieldId = listFirstFieldMap[list.id]; 
 
-            // ١. ئەگەر ئایدییەکە هەبوو، و لەناو dynamic داتاکەی هەبوو -> ئەوە ناوەکەیە
             if (firstFieldId && d.dynamic && d.dynamic[firstFieldId]) {
                 displayName = d.dynamic[firstFieldId];
             } 
-            // ٢. ئەگەر نەبوو، سەیری d.name دەکەین (بۆ کۆنەکان)
             else if (d.name && d.name !== '-' && d.name !== 'No Name') {
                 displayName = d.name;
             }
-            // -----------------------------
 
             const suspendReason = d.suspendReason || '-';
             const date = d.suspendDate ? new Date(d.suspendDate.seconds * 1000).toLocaleDateString('ku-IQ') : '-';
@@ -1105,7 +1100,6 @@ export async function loadSuspendedData() {
     }
 }
 
-// ٢. هێنانەوەی لیستی کاتی (Temporary) - ڕاستکراوە
 export async function loadTemporaryData() {
     const tbody = document.getElementById("temporaryTableBody");
     if (!tbody) return;
@@ -1114,7 +1108,6 @@ export async function loadTemporaryData() {
     let html = "";
     let foundAny = false;
 
-    // هەمان لۆجیک: دۆزینەوەی ئایدی یەکەم خانەی هەر لیستێک
     const listFirstFieldMap = {};
     allLists.forEach(list => {
         const fields = formFields.filter(f => f.listId === list.id).sort((a,b) => a.order - b.order);
@@ -1134,19 +1127,15 @@ export async function loadTemporaryData() {
             foundAny = true;
             const d = docSnap.data();
 
-            // --- چارەسەری کۆتایی بۆ ناو ---
             let displayName = "بێ ناو";
             const firstFieldId = listFirstFieldMap[list.id];
 
-            // ١. دۆزینەوەی ناو بەپێی ئایدی یەکەم خانە
             if (firstFieldId && d.dynamic && d.dynamic[firstFieldId]) {
                 displayName = d.dynamic[firstFieldId];
             } 
-            // ٢. گەڕانەوە بۆ ناوی کۆن ئەگەر ئەوەی سەرەوە نەبوو
             else if (d.name && d.name !== '-' && d.name !== 'No Name') {
                 displayName = d.name;
             }
-            // -----------------------------
 
             const date = d.tempDate ? new Date(d.tempDate.seconds * 1000).toLocaleDateString('ku-IQ') : '-';
 
@@ -1171,7 +1160,7 @@ export async function loadTemporaryData() {
         tbody.innerHTML = html;
     }
 }
-// ٣. فەنکشنی گەڕاندنەوە بۆ Active
+
 export async function restoreToActive(listId, id) {
     const result = await Swal.fire({
         title: 'گەڕاندنەوە',
@@ -1183,24 +1172,23 @@ export async function restoreToActive(listId, id) {
     });
 
     if(result.isConfirmed) {
+        const maxIdx = await getMaxOrderIndex(listId);
         await updateDoc(doc(db, "lists", listId, "beneficiaries", id), {
             status: 'active',
             suspendReason: null,
-            tempDate: null
+            tempDate: null,
+            orderIndex: maxIdx + 1 // دڵنیابوونەوە لەوەی کە دەچێتە کۆتایی لیستەکە
         });
         Swal.fire('گەڕێندرایەوە', 'ناوەکە گەڕایەوە شوێنی خۆی.', 'success');
         
-        // نوێکردنەوەی خشتەکان
         loadSuspendedData();
         loadTemporaryData();
     }
 }
 
-// --- گواستنەوە بۆ لیستیتر (Move completely to another list) ---
 export async function moveToList(id, dataStr) {
     const data = JSON.parse(decodeURIComponent(dataStr));
     
-    // دروستکردنی لیستی هەڵبژاردنەکان (بەبێ لیستی ئێستا)
     const availableLists = {};
     allLists.forEach(list => {
         if (list.id !== window.currentListId) {
@@ -1212,30 +1200,53 @@ export async function moveToList(id, dataStr) {
         return Swal.fire('زانیاری', 'هیچ لیستێکی تر بوونی نییە بۆ گواستنەوە.', 'info');
     }
 
-    const { value: targetListId } = await Swal.fire({
-        title: 'گواستنەوە بۆ کام لیست؟',
+    let selectedTargetListId = null;
+
+    const result = await Swal.fire({
+        title: 'بۆ کام لیست؟',
         input: 'select',
         inputOptions: availableLists,
         inputPlaceholder: 'لیستێک هەڵبژێرە...',
         showCancelButton: true,
-        confirmButtonText: 'گواستنەوە',
+        showDenyButton: true,
+        confirmButtonText: '<i class="fas fa-exchange-alt"></i> گواستنەوەی تەواو',
+        denyButtonText: '<i class="fas fa-copy"></i> ناردنی کۆپییەک',
         cancelButtonText: 'پاشگەزبوونەوە',
-        inputValidator: (value) => {
-            if (!value) return 'تکایە سەرەتا لیستێک دیاری بکە!';
+        confirmButtonColor: '#d33',
+        denyButtonColor: '#3085d6',
+        // پشکنین کاتێک دوگمەی 'گواستنەوە' دادەگرێت
+        preConfirm: () => {
+            const val = Swal.getInput().value;
+            if (!val) {
+                Swal.showValidationMessage('تکایە سەرەتا لیستێک دیاری بکە!');
+                return false;
+            }
+            selectedTargetListId = val;
+        },
+        // پشکنین کاتێک دوگمەی 'کۆپی' دادەگرێت
+        preDeny: () => {
+            const val = Swal.getInput().value;
+            if (!val) {
+                Swal.showValidationMessage('تکایە سەرەتا لیستێک دیاری بکە!');
+                return false;
+            }
+            selectedTargetListId = val;
         }
     });
 
-    if (targetListId) {
-        Swal.fire({ title: 'گواستنەوە...', didOpen: () => Swal.showLoading() });
+    if (result.isConfirmed || result.isDenied) {
+        const targetListId = selectedTargetListId;
+        const isCopy = result.isDenied;
+
+        Swal.fire({ title: (isCopy ? 'کۆپیکردن...' : 'گواستنەوە...'), didOpen: () => Swal.showLoading() });
+        
         try {
             const oldFields = formFields.filter(f => f.listId === window.currentListId);
             const newFields = formFields.filter(f => f.listId === targetListId);
 
-            // نەخشەی خانە کۆنەکان (بۆ زانینی جۆر و ناوی خانەکە)
             const oldFieldMap = {};
             oldFields.forEach(f => { oldFieldMap[f.id] = f; });
 
-            // نەخشەی خانە نوێیەکان بەپێی ناو (Label)
             const newFieldMap = {};
             newFields.forEach(f => { newFieldMap[f.label.trim()] = f.id; });
 
@@ -1244,26 +1255,23 @@ export async function moveToList(id, dataStr) {
                 for (const [oldId, value] of Object.entries(data.dynamic)) {
                     const oldField = oldFieldMap[oldId];
                     
-                    // ئەگەر خانەکە لە لیستی کۆن هەبوو وە زانیاری تێدابوو
                     if (oldField && value && value !== '-' && value !== '') { 
                         const label = oldField.label.trim();
                         
                         if (newFieldMap[label]) {
-                            // ئەگەر لە لیستی نوێ هەبوو، تێی بکە
                             newDynamicData[newFieldMap[label]] = value;
                         } else {
-                            // +++ چارەسەرەکە: ئەگەر لە لیستی نوێ نەبوو، خانەکە دروست بکە +++
                             const newFieldRef = await addDoc(collection(db, "listFields"), {
                                 listId: targetListId,
                                 type: oldField.type || 'text',
                                 label: label,
-                                showInTable: false, // بە فۆڵس دایدەنێین بۆ ئەوەی خشتەی لیستە نوێیەکە تێکنەدات تا خۆت لە ڕێکخستنەکان چالاکی نەکەیت
+                                showInTable: false, 
                                 showInPrint: oldField.showInPrint || false,
                                 order: Date.now(),
                                 isSystem: false
                             });
-                            newFieldMap[label] = newFieldRef.id; // زیادکردنی بۆ نەخشەکە
-                            newDynamicData[newFieldRef.id] = value; // خەزنکردنی زانیارییەکە
+                            newFieldMap[label] = newFieldRef.id; 
+                            newDynamicData[newFieldRef.id] = value; 
                         }
                     }
                 }
@@ -1273,7 +1281,13 @@ export async function moveToList(id, dataStr) {
             const batch = writeBatch(db);
             
             const oldDocRef = doc(db, "lists", window.currentListId, "beneficiaries", id);
-            const newDocRef = doc(db, "lists", targetListId, "beneficiaries", id);
+            
+            let newDocRef;
+            if (isCopy) {
+                newDocRef = doc(collection(db, "lists", targetListId, "beneficiaries"));
+            } else {
+                newDocRef = doc(db, "lists", targetListId, "beneficiaries", id);
+            }
             
             const newData = { ...data };
             newData.listId = targetListId;
@@ -1281,20 +1295,28 @@ export async function moveToList(id, dataStr) {
             newData.dynamic = newDynamicData; 
             
             batch.set(newDocRef, newData);
-            batch.delete(oldDocRef);
+            
+            // سڕینەوەی داتاکە لە شوێنە کۆنەکەی تەنها ئەگەر گواستنەوە بوو
+            if (!isCopy) {
+                batch.delete(oldDocRef);
+            }
             
             await batch.commit();
-            Swal.fire('سەرکەوتوو', 'ناوەکە گواسترایەوە و زانیارییە ونبووەکانیش دروستکرانەوە.', 'success');
+            
+            if (isCopy) {
+                Swal.fire('سەرکەوتوو', 'کۆپییەکی ناوەکە بە سەرکەوتوویی نێردرا بۆ لیستە نوێیەکە.', 'success');
+            } else {
+                Swal.fire('سەرکەوتوو', 'ناوەکە بەتەواوی گواسترایەوە بۆ لیستە نوێیەکە.', 'success');
+                // ڕێکخستنەوەی ڕیزبەندی تەنها کاتێک دەوێت کە گواسترابێتەوە و لەم لیستەی ئێستا کەم بووبێتەوە
+                await reorderAllRows(window.currentListId);
+            }
+            
         } catch (error) {
             console.error(error);
-            Swal.fire('هەڵە', 'کێشەیەک ڕوویدا لە گواستنەوەدا.', 'error');
+            Swal.fire('هەڵە', 'کێشەیەک ڕوویدا لە پرۆسەکەدا.', 'error');
         }
     }
 }
-
-// ==========================================
-// لۆجیکی دیاریکردن و کردارە بەکۆمەڵەکان
-// ==========================================
 
 window.toggleSelectAll = function(source) {
     const checkboxes = document.querySelectorAll('.row-checkbox');
@@ -1360,13 +1382,11 @@ window.resetAllCallStatuses = resetAllCallStatuses;
 window.saveCurrentListToArchive = saveCurrentListToArchive;
 window.openBulkWhatsAppSender = openBulkWhatsAppSender;
 window.markAsSent = markAsSent;
-// فەنکشنە نوێیەکانیش زیاد کران بۆ window
 window.toggleCallBlock = toggleCallBlock;
 window.showBlockAlert = window.showBlockAlert;
 window.restoreEntry = restoreEntry;
 window.permanentDelete = permanentDelete;
 window.loadRecycleBinData = loadRecycleBinData;
-// لە کۆتایی js/beneficiary-service.js
 window.loadSuspendedData = loadSuspendedData;
 window.loadTemporaryData = loadTemporaryData;
 window.restoreToActive = restoreToActive;
